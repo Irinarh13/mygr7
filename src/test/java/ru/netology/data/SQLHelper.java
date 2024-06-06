@@ -9,33 +9,34 @@ import java.sql.SQLException;
 
 
 public class SQLHelper {
-    private static final QueryRunner QUERY_RUNNER = new QueryRunner();
+    private static QueryRunner runner = new QueryRunner();
 
     private SQLHelper() {
     }
 
     private static Connection getConn() throws SQLException {
-        return DriverManager.getConnection("db.url", "app", "pass");
+        return DriverManager.getConnection("jdbc:mysql://185.119.57.126:3306/app", "app", "pass");
     }
 
     @SneakyThrows
-    public static String getVerificationCode() {
+    public static DataHelper.VerificationCode getVerificationCode() {
         var codeSQL = "SELECT code FROM auth_codes ORDER BY created DESC LIMIT 1";
         var conn = getConn();
-        return QUERY_RUNNER.query(conn, codeSQL, new ScalarHandler<>());
+        var code = runner.query(conn, codeSQL, new ScalarHandler<String>());
+        return new DataHelper.VerificationCode(code);
     }
 
     @SneakyThrows
     public static void cleanDatabase() {
         var connection = getConn();
-        QUERY_RUNNER.execute(connection, "DELETE FROM auth_codes");
-        QUERY_RUNNER.execute(connection, "DELETE FROM card_transactions");
-        QUERY_RUNNER.execute(connection, "DELETE FROM cards");
-        QUERY_RUNNER.execute(connection, "DELETE FROM users");
+        runner.execute(connection, "DELETE FROM auth_codes");
+        runner.execute(connection, "DELETE FROM card_transactions");
+        runner.execute(connection, "DELETE FROM cards");
+        runner.execute(connection, "DELETE FROM users");
     }
 
     @SneakyThrows
-    public static void cleanAuthCOdes(){
+    public static void cleanAUTHCOdes(){
         var connection = getConn();
-        QUERY_RUNNER.execute(connection, "DELETE FROM auth_codes");}
+        runner.execute(connection, "DELETE FROM auth_codes");}
 }
